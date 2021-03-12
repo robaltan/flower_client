@@ -11,6 +11,11 @@ import flwr as fl
 
 DEVICE = torch.device("cuda:0:" if torch.cuda.is_available() else "cpu")
 
+if DEVICE == "cuda:0:":
+	print("Training on CUDA")
+else:
+	print("Training on CPU")
+
 def load_data():
 	"""Load CIFAR-10 (training and test set)."""
 	transform = transforms.Compose(
@@ -58,7 +63,7 @@ class Net(nn.Module):
         	self.fc3 = nn.Linear(84, 10)
 
     	def forward(self, x: torch.Tensor) -> torch.Tensor:
-        	x = self.pool(F.relu(self.conv1(x)))
+		x = self.pool(F.relu(self.conv1(x)))
         	x = self.pool(F.relu(self.conv2(x)))
         	x = x.view(-1, 16 * 5 * 5)
         	x = F.relu(self.fc1(x))
@@ -67,6 +72,31 @@ class Net(nn.Module):
         	return x
 
 
-# Load model and data
 net = Net()
 trainloader, testloader = load_data()
+
+# CIFAR10 Client Model
+class CifarClient(fl.client.NumPyClient):
+    def get_parameters(self):
+        return [val.cpu().numpy() for _, val in net.state_dict().items()]
+
+    def set_parameters(self, parameters):
+        params_dict = zip(net.state_dict().keys(), parameters)
+        state_dict = OrderedDict({k: torch.Tensor(v) for k, v in params_dict})
+        net.load_state_dict(state_dict, strict=True)
+
+    def fit(self, parameters, config):
+        self.set_parameters(parameters)
+        train(net, trainloader, epochs=1)
+        return self.get_parameters(), len(trainloader), {}
+
+    def evaluate(self, parameters, config):
+        self.set_parameters(parameters)
+        loss, accuracy = test(net, testloader)
+        return float(loss), len(self.testloader), {"accuracy":float(accuracy)}
+
+IP_ADDRESS = "" + ":8080" # define your IP ADDRESS here
+fl.client.start_numpy_client(IP_ADDRESS, client=CifarClient())
+
+
+
