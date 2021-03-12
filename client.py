@@ -49,8 +49,8 @@ def test(net, testloader):
             		_, predicted = torch.max(outputs.data, 1)
             		total += labels.size(0)
             		correct += (predicted == labels).sum().item()
-    	accuracy = correct / total
-    	return loss, accuracy
+	accuracy = correct / total
+	return loss, accuracy
 
 class Net(nn.Module):
 	def __init__(self) -> None:
@@ -62,14 +62,14 @@ class Net(nn.Module):
         	self.fc2 = nn.Linear(120, 84)
         	self.fc3 = nn.Linear(84, 10)
 
-    	def forward(self, x: torch.Tensor) -> torch.Tensor:
+	def forward(self, x: torch.Tensor) -> torch.Tensor:
 		x = self.pool(F.relu(self.conv1(x)))
-        	x = self.pool(F.relu(self.conv2(x)))
-        	x = x.view(-1, 16 * 5 * 5)
-        	x = F.relu(self.fc1(x))
-        	x = F.relu(self.fc2(x))
-        	x = self.fc3(x)
-        	return x
+		x = self.pool(F.relu(self.conv2(x)))
+		x = x.view(-1, 16 * 5 * 5)
+		x = F.relu(self.fc1(x))
+		x = F.relu(self.fc2(x))
+		x = self.fc3(x)
+		return x
 
 
 net = Net()
@@ -95,7 +95,7 @@ class CifarClient(fl.client.NumPyClient):
         loss, accuracy = test(net, testloader)
         return float(loss), len(self.testloader), {"accuracy":float(accuracy)}
 
-IP_ADDRESS = "" + ":8080" # define your IP ADDRESS here
+SERVER_IP_ADDRESS = "" + ":8080" # define your IP ADDRESS here
 fl.client.start_numpy_client(IP_ADDRESS, client=CifarClient())
 
 

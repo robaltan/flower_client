@@ -2,4 +2,4 @@ flwr
 torch
 numpy
 torchvision
-
+requests
