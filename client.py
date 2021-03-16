@@ -93,10 +93,10 @@ class CifarClient(fl.client.NumPyClient):
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
         loss, accuracy = test(net, testloader)
-        return float(loss), len(self.testloader), {"accuracy":float(accuracy)}
+        return float(loss), len(testloader), {"accuracy":float(accuracy)}
 
-SERVER_IP_ADDRESS = "" + ":8080" # define your IP ADDRESS here
-fl.client.start_numpy_client(IP_ADDRESS, client=CifarClient())
+SERVER_IP_ADDRESS = "146.169.43.101:8080" # define your IP ADDRESS here
+fl.client.start_numpy_client(SERVER_IP_ADDRESS, client=CifarClient())
 
 
 

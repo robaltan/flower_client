@@ -1,2 +1,7 @@
 # exclude venv
 venv
+
+# exclude the dataset
+cifar-10-batches-py 
+cifar-10-python.tar.gz
+
